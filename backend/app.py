@@ -1,7 +1,9 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
+CORS(app)
 
 API_KEY = "a718cca065c1340cdb917e5cb7a2e439"
 HEADERS = {
@@ -10,11 +12,14 @@ HEADERS = {
 }
 BASE_URL = "https://api-football-v1.p.rapidapi.com/v3"
 
-@app.route("/classificacao")
-def classificacao():
-    url = f"{BASE_URL}/standings?league=71&season=2025"
-    res = requests.get(url, headers=HEADERS)
-    return jsonify(res.json())
+@app.route("/classificacao", methods=["GET"])
+def get_classificacao():
+    data = [
+        {"time": "Palmeiras", "pontos": 45},
+        {"time": "Flamengo", "pontos": 42},
+        {"time": "Botafogo", "pontos": 40}
+    ]
+    return jsonify(data)
 
 @app.route("/jogos")
 def jogos():
@@ -23,4 +28,4 @@ def jogos():
     return jsonify(res.json())
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
