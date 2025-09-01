@@ -1,34 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { getClassificacao } from "../services/api";
+import api from "../services/api";
 
 function DashboardGeral() {
-  const [tabela, setTabela] = useState([]);
+  const [classificacao, setClassificacao] = useState([]);
 
   useEffect(() => {
-    getClassificacao().then(data => {
-      if (data.response && data.response[0].league.standings) {
-        setTabela(data.response[0].league.standings[0]);
+    const fetchData = async () => {
+      try {
+        const response = await api.get("/classificacao");
+        setClassificacao(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar classificação:", error);
       }
-    });
+    };
+
+    fetchData();
   }, []);
 
   return (
-    <div className="p-6 text-white">
-      <h2 className="text-2xl font-bold mb-4">Classificação - Brasileirão 2025</h2>
-      <table className="table-auto w-full border border-gray-700">
-        <thead className="bg-gray-800">
-          <tr>
-            <th className="px-4 py-2">Posição</th>
-            <th className="px-4 py-2">Time</th>
-            <th className="px-4 py-2">Pontos</th>
+    <div className="p-4 text-white">
+      <h2 className="text-xl font-bold mb-4">Classificação - Brasileirão 2025</h2>
+      <table className="w-full border-collapse border border-gray-600">
+        <thead>
+          <tr className="bg-gray-800">
+            <th className="border border-gray-600 p-2">Posição</th>
+            <th className="border border-gray-600 p-2">Time</th>
+            <th className="border border-gray-600 p-2">Pontos</th>
           </tr>
         </thead>
         <tbody>
-          {tabela.map((time, i) => (
-            <tr key={time.team.id} className="border-t border-gray-700">
-              <td className="px-4 py-2">{i + 1}</td>
-              <td className="px-4 py-2">{time.team.name}</td>
-              <td className="px-4 py-2">{time.points}</td>
+          {classificacao.map((item, index) => (
+            <tr key={index} className="text-center">
+              <td className="border border-gray-600 p-2">{item.posicao}</td>
+              <td className="border border-gray-600 p-2">{item.time}</td>
+              <td className="border border-gray-600 p-2">{item.pontos}</td>
             </tr>
           ))}
         </tbody>

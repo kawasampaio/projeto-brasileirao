@@ -12,14 +12,53 @@ HEADERS = {
 }
 BASE_URL = "https://api-football-v1.p.rapidapi.com/v3"
 
-@app.route("/classificacao", methods=["GET"])
-def get_classificacao():
-    data = [
-        {"time": "Palmeiras", "pontos": 45},
-        {"time": "Flamengo", "pontos": 42},
-        {"time": "Botafogo", "pontos": 40}
+@app.route("/classificacao")
+def classificacao():
+    tabela = [
+        {
+            "posicao": 1,
+            "time": "Flamengo",
+            "escudo": "https://upload.wikimedia.org/wikipedia/pt/2/2e/Clube_de_Regatas_do_Flamengo_logo.png",
+            "pontos": 47,
+            "jogos": 21,
+            "vitorias": 14,
+            "empates": 5,
+            "derrotas": 2,
+            "gm": 45,
+            "gc": 10,
+            "sg": 35,
+            "ultimos5": ["V", "V", "E", "V", "V"]
+        },
+        {
+            "posicao": 2,
+            "time": "Cruzeiro",
+            "escudo": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Cruzeiro_Esporte_Clube_logo.png",
+            "pontos": 44,
+            "jogos": 22,
+            "vitorias": 13,
+            "empates": 5,
+            "derrotas": 4,
+            "gm": 35,
+            "gc": 15,
+            "sg": 20,
+            "ultimos5": ["V", "D", "V", "V", "E"]
+        },
+        {
+            "posicao": 3,
+            "time": "Palmeiras",
+            "escudo": "https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.png",
+            "pontos": 43,
+            "jogos": 20,
+            "vitorias": 13,
+            "empates": 4,
+            "derrotas": 3,
+            "gm": 28,
+            "gc": 16,
+            "sg": 12,
+            "ultimos5": ["V", "V", "V", "E", "D"]
+        }
     ]
-    return jsonify(data)
+    return jsonify(tabela)
 
 @app.route("/jogos")
 def jogos():
