@@ -60,11 +60,31 @@ def classificacao():
     ]
     return jsonify(tabela)
 
+@app.route("/artilheiros")
+def artilheiros():
+    jogadores = [
+        {"jogador": "Kaio Jorge", "gols": 13},
+        {"jogador": "Giorgian De Arrascaeta", "gols": 10},
+        {"jogador": "Reinaldo", "gols": 7}
+    ]
+    return jsonify(jogadores)
+
+@app.route("/assistencias")
+def assistencias():
+    jogadores = [
+        {"jogador": "Giorgian De Arrascaeta", "assistencias": 6},
+        {"jogador": "Kaio Jorge", "assistencias": 5},
+        {"jogador": "Alan Patrick", "assistencias": 3}
+    ]
+    return jsonify(jogadores)
+
+
 @app.route("/jogos")
 def jogos():
     url = f"{BASE_URL}/fixtures?league=71&season=2025"
-    res = requests.get(url, headers=HEADERS)
-    return jsonify(res.json())
+    res = requests.get(url, headers=HEADERS).json()
+    return jsonify(res.get("response", []))
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

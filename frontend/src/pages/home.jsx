@@ -13,7 +13,7 @@ export default function Home() {
         Acompanhe estatísticas, jogos e previsões do campeonato.
       </p>
       <button
-        onClick={() => navigate("/dashboard")}
+        onClick={() => navigate("/dashboardgeral")}
         className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
       >
         Acessar o Dashboard
