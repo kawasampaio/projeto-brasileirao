@@ -1,90 +1,81 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-import requests
+import json
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-API_KEY = "a718cca065c1340cdb917e5cb7a2e439"
-HEADERS = {
-    "x-rapidapi-host": "api-football-v1.p.rapidapi.com",
-    "x-rapidapi-key": API_KEY
-}
-BASE_URL = "https://api-football-v1.p.rapidapi.com/v3"
+# Caminho para o JSON local
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+JSON_PATH = os.path.join(BASE_DIR, "dados.json")
+
+# Carrega o JSON
+with open(JSON_PATH, "r", encoding="utf-8") as f:
+    data = json.load(f)["campeonato_brasileiro_serie_a_2025"]
 
 @app.route("/classificacao")
 def classificacao():
-    tabela = [
-        {
-            "posicao": 1,
-            "time": "Flamengo",
-            "escudo": "https://upload.wikimedia.org/wikipedia/pt/2/2e/Clube_de_Regatas_do_Flamengo_logo.png",
-            "pontos": 47,
-            "jogos": 21,
-            "vitorias": 14,
-            "empates": 5,
-            "derrotas": 2,
-            "gm": 45,
-            "gc": 10,
-            "sg": 35,
-            "ultimos5": ["V", "V", "E", "V", "V"]
-        },
-        {
-            "posicao": 2,
-            "time": "Cruzeiro",
-            "escudo": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Cruzeiro_Esporte_Clube_logo.png",
-            "pontos": 44,
-            "jogos": 22,
-            "vitorias": 13,
-            "empates": 5,
-            "derrotas": 4,
-            "gm": 35,
-            "gc": 15,
-            "sg": 20,
-            "ultimos5": ["V", "D", "V", "V", "E"]
-        },
-        {
-            "posicao": 3,
-            "time": "Palmeiras",
-            "escudo": "https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.png",
-            "pontos": 43,
-            "jogos": 20,
-            "vitorias": 13,
-            "empates": 4,
-            "derrotas": 3,
-            "gm": 28,
-            "gc": 16,
-            "sg": 12,
-            "ultimos5": ["V", "V", "V", "E", "D"]
-        }
-    ]
-    return jsonify(tabela)
+    return jsonify(data["classificacao"])
 
 @app.route("/artilheiros")
 def artilheiros():
-    jogadores = [
-        {"jogador": "Kaio Jorge", "gols": 13},
-        {"jogador": "Giorgian De Arrascaeta", "gols": 10},
-        {"jogador": "Reinaldo", "gols": 7}
-    ]
-    return jsonify(jogadores)
+    jogadores = []
+    for time in data["classificacao"]:
+        if "principal_artilheiro" in time and "Não informado" not in time["principal_artilheiro"]:
+            nome, gols = time["principal_artilheiro"].split(" (")
+
+            # Normaliza o valor, removendo singular e plural
+            valor_limpo = (
+                gols.replace(" gols)", "")
+                    .replace(" gol)", "")
+                    .strip()
+            )
+
+            jogadores.append({
+                "nome": nome,
+                "gols": int(valor_limpo) if valor_limpo.isdigit() else 0
+            })
+
+    # Ordena por gols
+    jogadores.sort(key=lambda x: x["gols"], reverse=True)
+
+    return jsonify(jogadores[:5])
+
 
 @app.route("/assistencias")
 def assistencias():
-    jogadores = [
-        {"jogador": "Giorgian De Arrascaeta", "assistencias": 6},
-        {"jogador": "Kaio Jorge", "assistencias": 5},
-        {"jogador": "Alan Patrick", "assistencias": 3}
-    ]
-    return jsonify(jogadores)
+    # Pega top 5 assistentes dos times
+    jogadores = []
+    for time in data["classificacao"]:
+        if "principal_assistente" in time and "Não informado" not in time["principal_assistente"]:
+            nome, assists = time["principal_assistente"].split(" (")
+
+            # Normaliza o valor, removendo singular e plural
+            valor_limpo = (
+                assists.replace(" assistências)", "")
+                       .replace(" assistência)", "")
+                       .strip()
+            )
+
+            jogadores.append({
+                "nome": nome,
+                "assistencias": int(valor_limpo) if valor_limpo.isdigit() else 0
+            })
+
+    # Ordena por assistências
+    jogadores.sort(key=lambda x: x["assistencias"], reverse=True)
+
+    return jsonify(jogadores[:5])
 
 
 @app.route("/jogos")
 def jogos():
-    url = f"{BASE_URL}/fixtures?league=71&season=2025"
-    res = requests.get(url, headers=HEADERS).json()
-    return jsonify(res.get("response", []))
+    return jsonify(data["proximos_jogos"])
 
+@app.route("/estatisticas")
+def estatisticas():
+    return jsonify(data["estatisticas_gerais"])
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
