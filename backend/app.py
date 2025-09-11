@@ -2,6 +2,8 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 import json
 import os
+import re
+
 
 app = Flask(__name__)
 CORS(app)
@@ -16,62 +18,50 @@ with open(JSON_PATH, "r", encoding="utf-8") as f:
 
 @app.route("/classificacao")
 def classificacao():
-    return jsonify(data["classificacao"])
+    tabela = []
+    for i, time in enumerate(data["classificacao"], start=1):
+        tabela.append({
+            "posicao": i,
+            "time": time["time"],
+            "pontos": time["pontos"]
+        })
+    return jsonify(tabela)
 
 @app.route("/artilheiros")
 def artilheiros():
     jogadores = []
     for time in data["classificacao"]:
-        if "principal_artilheiro" in time and "Não informado" not in time["principal_artilheiro"]:
-            nome, gols = time["principal_artilheiro"].split(" (")
-
-            # Normaliza o valor, removendo singular e plural
-            valor_limpo = (
-                gols.replace(" gols)", "")
-                    .replace(" gol)", "")
-                    .strip()
-            )
-
+        if "artilheiro" in time and "Não informado" not in time["artilheiro"]:
+            nome, gols = time["artilheiro"].split(" (")
             jogadores.append({
-                "nome": nome,
-                "gols": int(valor_limpo) if valor_limpo.isdigit() else 0
+                "player": { "name": nome, "photo": "" },
+                "statistics": [ { "goals": { "total": int(gols.replace(" gols)", "")) } } ]
             })
-
-    # Ordena por gols
-    jogadores.sort(key=lambda x: x["gols"], reverse=True)
-
+    jogadores.sort(key=lambda x: x["statistics"][0]["goals"]["total"], reverse=True)
     return jsonify(jogadores[:5])
-
 
 @app.route("/assistencias")
 def assistencias():
-    # Pega top 5 assistentes dos times
     jogadores = []
     for time in data["classificacao"]:
         if "principal_assistente" in time and "Não informado" not in time["principal_assistente"]:
-            nome, assists = time["principal_assistente"].split(" (")
+            try:
+                nome, assists = time["principal_assistente"].split(" (")
+                numero = int(re.sub(r"\D", "", assists))  # pega só os dígitos
+                jogadores.append({
+                    "player": {"name": nome},
+                    "statistics": [{"goals": {"assists": numero}}]
+                })
+            except Exception as e:
+                print("Erro ao processar assistente:", time["principal_assistente"], e)
 
-            # Normaliza o valor, removendo singular e plural
-            valor_limpo = (
-                assists.replace(" assistências)", "")
-                       .replace(" assistência)", "")
-                       .strip()
-            )
-
-            jogadores.append({
-                "nome": nome,
-                "assistencias": int(valor_limpo) if valor_limpo.isdigit() else 0
-            })
-
-    # Ordena por assistências
-    jogadores.sort(key=lambda x: x["assistencias"], reverse=True)
-
+    jogadores.sort(key=lambda x: x["statistics"][0]["goals"]["assists"], reverse=True)
     return jsonify(jogadores[:5])
-
 
 @app.route("/jogos")
 def jogos():
-    return jsonify(data["proximos_jogos"])
+    return jsonify(data.get("jogos", []))
+
 
 @app.route("/estatisticas")
 def estatisticas():

@@ -34,7 +34,8 @@ function DashboardGeral() {
         <ul>
           {artilheiros.map((p, i) => (
             <li key={i} className="mb-2">
-              {i + 1}. {p.player?.name || "Desconhecido"} - {p.statistics?.[0]?.goals?.total || 0} gols
+              {i + 1}. {p.player?.name || "Desconhecido"} -{" "}
+              {p.statistics?.[0]?.goals?.total ?? 0} gols
             </li>
           ))}
         </ul>
@@ -46,7 +47,8 @@ function DashboardGeral() {
         <ul>
           {assistencias.map((p, i) => (
             <li key={i} className="mb-2">
-              {i + 1}. {p.player?.name || "Desconhecido"} - {p.statistics?.[0]?.goals?.assists || 0} assistências
+              {i + 1}. {p.player?.name || "Desconhecido"} -{" "}
+              {p.statistics?.[0]?.goals?.assists ?? 0} assistências
             </li>
           ))}
         </ul>
@@ -81,7 +83,8 @@ function DashboardGeral() {
         <ul>
           {jogos.map((j, i) => (
             <li key={i} className="mb-1">
-              {j.teams?.home?.name} {j.goals?.home ?? 0} - {j.goals?.away ?? 0} {j.teams?.away?.name}
+              {j.teams?.home?.name} {j.goals?.home ?? 0} - {j.goals?.away ?? 0}{" "}
+              {j.teams?.away?.name}
             </li>
           ))}
         </ul>
