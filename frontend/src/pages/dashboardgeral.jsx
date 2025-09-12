@@ -21,7 +21,7 @@ function DashboardGeral() {
       setAssistencias(res.data.slice(0, 3)); // só top 3
     });
 
-    api.get("/jogos").then((res) => {
+    api.get("/proximos-jogos").then((res) => {
       setJogos(res.data.slice(0, 10)); // só alguns jogos
     });
   }, []);
